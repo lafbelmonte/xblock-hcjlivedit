@@ -1,0 +1,25 @@
+var/
+*.pot
+*.pyc
+local_settings.py
+*.egg-info
+.treerc
+.coverage
+.idea
+.tox
+.pytest_cache
+htmlcov
+geckodriver.log
+
+*.DS_Store
+workbench/static/djpyfs/
+workbench.test.*
+
+### Developer Settings
+private.py
+
+# Documentation
+doc/_build
+.pip_cache
+nosetests.xml
+coverage.xml
