@@ -3,29 +3,23 @@
 import pkg_resources
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope
-
+from xblock.fields import String, Scope
 
 class HtmlCssJsLiveEditorXBlock(XBlock):
     """
     TO-DO: document what your XBlock does.
     """
 
-    # Fields are defined on the class.  You can access them in your code as
-    # self.<fieldname>.
+    html_code = String(help="HTML code", default="<button>Click Me</button>", scope=Scope.user_state)
+    css_code = String(help="CSS code", default="button { color: red; }", scope=Scope.user_state)
+    js_code = String(help="JS code", default="document.querySelector(\"button\").addEventListener(\"click\", function() { alert(\"Good luck!\"); })", scope=Scope.user_state)
 
-    # TO-DO: delete count, and define your own fields.
-    # count = Integer(
-    #     default=0, scope=Scope.user_state,
-    #     help="A simple counter, to show something happening",
-    # )
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
-    # TO-DO: change this view to display your data your own way.
     def student_view(self, context=None):
         """
         The primary view of the HtmlCssJsLiveEditorXBlock, shown to students
@@ -39,21 +33,30 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
         frag.initialize_js('HtmlCssJsLiveEditorXBlock')
         return frag
 
-    # TO-DO: change this handler to perform your own actions.  You may need more
-    # than one handler, or you may not need any handlers at all.
-    # @XBlock.json_handler
-    # def increment_count(self, data, suffix=''):
-    #     """
-    #     An example handler, which increments the data.
-    #     """
-    #     # Just to show data coming in...
-    #     assert data['hello'] == 'world'
+    @XBlock.json_handler
+    def load_code(self, data, suffix=''):
+        return { "htmlCode": self.html_code, "cssCode": self.css_code, "jsCode": self.js_code }
+    
+    @XBlock.json_handler
+    def save_code(self, data, suffix=''):
 
-    #     self.count += 1
-    #     return {"count": self.count}
+        success = True
 
-    # TO-DO: change this to create the scenarios you'd like to see in the
-    # workbench while developing your XBlock.
+        if data["htmlCode"] is None:
+            success = False
+        
+        if data["cssCode"] is None:
+            success = False
+
+        if data["jsCode"] is None:
+            success = False
+        
+        self.html_code = data["htmlCode"]
+        self.css_code = data["cssCode"]
+        self.js_code = data["jsCode"]
+
+        return { "success": success }
+
     @staticmethod
     def workbench_scenarios():
         """A canned scenario for display in the workbench."""
