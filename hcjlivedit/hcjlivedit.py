@@ -6,10 +6,8 @@ from xblock.core import XBlock
 from xblock.fields import String, Scope
 
 class HtmlCssJsLiveEditorXBlock(XBlock):
-    """
-    TO-DO: document what your XBlock does.
-    """
 
+    instruction = String(default="Create a red button that will alert Good luck! when clicked.")
     html_code = String(help="HTML code", default="<button>Click Me</button>", scope=Scope.user_state)
     css_code = String(help="CSS code", default="button { color: red; }", scope=Scope.user_state)
     js_code = String(help="JS code", default="document.querySelector(\"button\").addEventListener(\"click\", function() { alert(\"Good luck!\"); })", scope=Scope.user_state)
@@ -20,22 +18,28 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
+    # def student_view(self, context=None):
+    #     html = self.resource_string("static/html/hcjlivedit.html")
+    #     frag = Fragment(html.format(self=self))
+    #     frag.add_css(self.resource_string("static/css/hcjlivedit.css"))
+    #     frag.add_javascript_url("https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js")
+    #     frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
+    #     frag.initialize_js('HtmlCssJsLiveEditorXBlock')
+    #     return frag
+
+    # studio
     def student_view(self, context=None):
-        """
-        The primary view of the HtmlCssJsLiveEditorXBlock, shown to students
-        when viewing courses.
-        """
-        html = self.resource_string("static/html/hcjlivedit.html")
+        html = self.resource_string("static/html/hcjlivedit_edit.html")
         frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/hcjlivedit.css"))
-        frag.add_javascript_url("https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js")
-        frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
-        frag.initialize_js('HtmlCssJsLiveEditorXBlock')
+        frag.add_css(self.resource_string("static/css/hcjlivedit_edit.css"))
+        frag.add_javascript_url("https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js")
+        frag.add_javascript(self.resource_string("static/js/src/hcjlivedit_edit.js"))
+        frag.initialize_js('HtmlCssJsLiveEditorEditXBlock')
         return frag
 
     @XBlock.json_handler
-    def load_code(self, data, suffix=''):
-        return { "htmlCode": self.html_code, "cssCode": self.css_code, "jsCode": self.js_code }
+    def load_content(self, data, suffix=''):
+        return {"instruction": self.instruction, "htmlCode": self.html_code, "cssCode": self.css_code, "jsCode": self.js_code }
     
     @XBlock.json_handler
     def save_code(self, data, suffix=''):
