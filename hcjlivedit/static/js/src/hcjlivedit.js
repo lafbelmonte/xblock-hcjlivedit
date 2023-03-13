@@ -80,18 +80,31 @@ function HtmlCssJsLiveEditorXBlock(runtime, element) {
         $(".reset", element).click(reset);
     }
 
-    $(function ($) {
-        const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
+    const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
 
-        $.ajax({
-            type: "POST",
-            url: loadCodeHandlerUrl,
-            data: JSON.stringify({}),
-            success: init,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown);
-                $(".hcjlivedit_block", element).text("Something went wrong.");
-            }
-        });
+    $.ajax({
+        type: "POST",
+        url: loadCodeHandlerUrl,
+        data: JSON.stringify({}),
+        success: init,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log(errorThrown);
+            $(".hcjlivedit_block", element).text("Something went wrong.");
+        }
     });
+
+    // $(function ($) {
+    //     const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
+
+    //     $.ajax({
+    //         type: "POST",
+    //         url: loadCodeHandlerUrl,
+    //         data: JSON.stringify({}),
+    //         success: init,
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             console.log(errorThrown);
+    //             $(".hcjlivedit_block", element).text("Something went wrong.");
+    //         }
+    //     });
+    // });
 }
