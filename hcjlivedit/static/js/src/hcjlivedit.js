@@ -35,9 +35,35 @@ function HtmlCssJsLiveEditorXBlock(runtime, element) {
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(errorThrown);
-                alert("Something went wrong.")
+                alert("Something went wrong.");
             }
         });
+    }
+
+    function reset() {
+
+        const resetCodeHandlerUrl = runtime.handlerUrl(element, "reset_code");
+
+        $.ajax({
+            type: "POST",
+            url: resetCodeHandlerUrl,
+            data: JSON.stringify({}),
+            success: function (data) {
+                update(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                alert("Something went wrong.");
+            }
+        });
+    }
+
+    function update({ htmlCode, cssCode, jsCode }) {
+        htmlEditor.session.setValue(`${htmlCode}`);
+        cssEditor.session.setValue(`${cssCode}`);
+        jsEditor.session.setValue(`${jsCode}`);
+
+        run();
     }
 
     function init(data) {
@@ -45,16 +71,13 @@ function HtmlCssJsLiveEditorXBlock(runtime, element) {
         cssEditor.session.setMode("ace/mode/css");
         jsEditor.session.setMode("ace/mode/javascript");
 
-        htmlEditor.session.setValue(`${data.htmlCode}`);
-        cssEditor.session.setValue(`${data.cssCode}`);
-        jsEditor.session.setValue(`${data.jsCode}`);
-
-        run();
+        update(data);
 
         $("#html", element).keyup(run);
         $("#css", element).keyup(run);
         $("#js", element).keyup(run);
         $(".save", element).click(save);
+        $(".reset", element).click(reset);
     }
 
     $(function ($) {

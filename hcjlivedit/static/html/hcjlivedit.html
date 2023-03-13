@@ -1,6 +1,6 @@
 <div class="hcjlivedit_block">
     <div class="instruction">
-        <p>{self.instruction}</p>
+        {{ instruction | safe }}
     </div>
     <div class="editor">
         <div class="input">
@@ -22,8 +22,10 @@
             <iframe id="page"></iframe>
         </div>
     </div>
+    {% if not context.author %}
     <div class="buttons">
+        <button class="reset">Reset</button>
         <button class="save">Save</button>
-        <button class="submit">Submit</button>
     </div>
+    {% endif %}
 </div>

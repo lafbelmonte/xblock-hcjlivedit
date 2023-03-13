@@ -4,4 +4,9 @@
 
 .buttons {
     text-align: right;
+    margin: 10px;
+}
+
+.view {
+    margin: 10px;
 }
