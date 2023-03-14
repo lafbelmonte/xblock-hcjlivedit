@@ -1,96 +1,96 @@
 function HtmlCssJsLiveEditorXBlock(runtime, element) {
-    window.RequireJS.require(["https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js"], function () {
-        let htmlEditor = ace.edit("html");
-        let cssEditor = ace.edit("css");
-        let jsEditor = ace.edit("js");
 
-        function run() {
-            let htmlCode = htmlEditor.getValue();
-            let cssCode = "<style>" + cssEditor.getValue() + "</style>";
-            let jsCode = jsEditor.getValue();
-            let page = document.querySelector("#page");
+    let htmlEditor = ace.edit("html");
+    let cssEditor = ace.edit("css");
+    let jsEditor = ace.edit("js");
 
-            page.contentDocument.body.innerHTML = htmlCode + cssCode;
-            page.contentWindow.eval(jsCode);
-        }
+    function run() {
+        let htmlCode = htmlEditor.getValue();
+        let cssCode = "<style>" + cssEditor.getValue() + "</style>";
+        let jsCode = jsEditor.getValue();
+        let page = document.querySelector("#page");
 
-        function save() {
+        page.contentDocument.body.innerHTML = htmlCode + cssCode;
+        page.contentWindow.eval(jsCode);
+    }
 
-            const saveCodeHandlerUrl = runtime.handlerUrl(element, "save_code");
+    function save() {
 
-            let htmlCode = htmlEditor.getValue();
-            let cssCode = cssEditor.getValue();
-            let jsCode = jsEditor.getValue();
+        const saveCodeHandlerUrl = runtime.handlerUrl(element, "save_code");
 
-            $.ajax({
-                type: "POST",
-                url: saveCodeHandlerUrl,
-                data: JSON.stringify({ htmlCode, cssCode, jsCode }),
-                success: function (data) {
-                    if (data.success) {
-                        alert("Code saved successfully");
-                    } else {
-                        alert("Something went wrong.");
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log(errorThrown);
-                    alert("Something went wrong.");
-                }
-            });
-        }
-
-        function reset() {
-
-            const resetCodeHandlerUrl = runtime.handlerUrl(element, "reset_code");
-
-            $.ajax({
-                type: "POST",
-                url: resetCodeHandlerUrl,
-                data: JSON.stringify({}),
-                success: function (data) {
-                    update(data);
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log(errorThrown);
-                    alert("Something went wrong.");
-                }
-            });
-        }
-
-        function update({ htmlCode, cssCode, jsCode }) {
-            htmlEditor.session.setValue(`${htmlCode}`);
-            cssEditor.session.setValue(`${cssCode}`);
-            jsEditor.session.setValue(`${jsCode}`);
-
-            run();
-        }
-
-        function init(data) {
-            htmlEditor.session.setMode("ace/mode/html");
-            cssEditor.session.setMode("ace/mode/css");
-            jsEditor.session.setMode("ace/mode/javascript");
-
-            update(data);
-
-            $("#html", element).keyup(run);
-            $("#css", element).keyup(run);
-            $("#js", element).keyup(run);
-            $(".save", element).click(save);
-            $(".reset", element).click(reset);
-        }
-
-        const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
+        let htmlCode = htmlEditor.getValue();
+        let cssCode = cssEditor.getValue();
+        let jsCode = jsEditor.getValue();
 
         $.ajax({
             type: "POST",
-            url: loadCodeHandlerUrl,
-            data: JSON.stringify({}),
-            success: init,
+            url: saveCodeHandlerUrl,
+            data: JSON.stringify({ htmlCode, cssCode, jsCode }),
+            success: function (data) {
+                if (data.success) {
+                    alert("Code saved successfully");
+                } else {
+                    alert("Something went wrong.");
+                }
+            },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(errorThrown);
-                $(".hcjlivedit_block", element).text("Something went wrong.");
+                alert("Something went wrong.");
             }
         });
+    }
+
+    function reset() {
+
+        const resetCodeHandlerUrl = runtime.handlerUrl(element, "reset_code");
+
+        $.ajax({
+            type: "POST",
+            url: resetCodeHandlerUrl,
+            data: JSON.stringify({}),
+            success: function (data) {
+                update(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                alert("Something went wrong.");
+            }
+        });
+    }
+
+    function update({ htmlCode, cssCode, jsCode }) {
+        htmlEditor.session.setValue(`${htmlCode}`);
+        cssEditor.session.setValue(`${cssCode}`);
+        jsEditor.session.setValue(`${jsCode}`);
+
+        run();
+    }
+
+    function init(data) {
+        htmlEditor.session.setMode("ace/mode/html");
+        cssEditor.session.setMode("ace/mode/css");
+        jsEditor.session.setMode("ace/mode/javascript");
+
+        update(data);
+
+        $("#html", element).keyup(run);
+        $("#css", element).keyup(run);
+        $("#js", element).keyup(run);
+        $(".save", element).click(save);
+        $(".reset", element).click(reset);
+    }
+
+    const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
+
+    $.ajax({
+        type: "POST",
+        url: loadCodeHandlerUrl,
+        data: JSON.stringify({}),
+        success: init,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log(errorThrown);
+            $(".hcjlivedit_block", element).text("Something went wrong.");
+        }
     });
+
 }
