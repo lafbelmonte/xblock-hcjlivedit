@@ -32,7 +32,10 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
         html = self.render_template("static/html/hcjlivedit.html", {"instruction": self.instruction, "context": context})
         frag.add_content(html)
         frag.add_css(self.resource_string("static/css/hcjlivedit.css"))
-        frag.add_javascript_url("https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js")
+
+        # use only on workbench
+        # frag.add_javascript_url("https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js")
+
         frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
         frag.initialize_js('HtmlCssJsLiveEditorXBlock')
         return frag
@@ -46,7 +49,10 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
         html = self.render_template("static/html/hcjlivedit_edit.html", {"instruction": self.instruction})
         frag.add_content(html)
         frag.add_css(self.resource_string("static/css/hcjlivedit_edit.css"))
-        frag.add_javascript_url("https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js")
+
+        # use only on workbench
+        # frag.add_javascript_url("https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js")
+        
         frag.add_javascript(self.resource_string("static/js/src/hcjlivedit_edit.js"))
         frag.initialize_js('HtmlCssJsLiveEditorEditXBlock')
         return frag
