@@ -32,17 +32,4 @@ function HtmlCssJsLiveEditorEditXBlock(runtime, element) {
         });
 
     $(".save", element).click(save);
-
-
-    // $(function ($) {
-    //     ClassicEditor
-    //         .create(document.querySelector("#instruction"))
-    //         .then(function (newEditor) { editor = newEditor; })
-    //         .catch(function (error) {
-    //             console.log(error);
-    //             $(".hcjlivedit_edit_block", element).text("Something went wrong.");
-    //         });
-
-    //     $(".save", element).click(save);
-    // });
 }

@@ -1,5 +1,4 @@
 function HtmlCssJsLiveEditorXBlock(runtime, element) {
-
     let htmlEditor = ace.edit("html");
     let cssEditor = ace.edit("css");
     let jsEditor = ace.edit("js");
@@ -92,19 +91,4 @@ function HtmlCssJsLiveEditorXBlock(runtime, element) {
             $(".hcjlivedit_block", element).text("Something went wrong.");
         }
     });
-
-    // $(function ($) {
-    //     const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
-
-    //     $.ajax({
-    //         type: "POST",
-    //         url: loadCodeHandlerUrl,
-    //         data: JSON.stringify({}),
-    //         success: init,
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             console.log(errorThrown);
-    //             $(".hcjlivedit_block", element).text("Something went wrong.");
-    //         }
-    //     });
-    // });
 }
