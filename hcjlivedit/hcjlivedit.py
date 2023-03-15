@@ -3,12 +3,25 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import String, Scope
 from django.template import Context, Template
+from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-class HtmlCssJsLiveEditorXBlock(XBlock):
+class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
+
+    display_name = String(
+        default="HTML CSS JS Live Editor",
+        display_name="Display Name"
+    )
 
     has_author_view = True
 
-    instruction = String(default="")
+    instruction = String(
+        default="<p>Hello World!</p>", 
+        multiline_editor="html", 
+        resettable_editor=False,
+        display_name="Instruction",
+        help="Instruction students will see at the top of the code editor."
+    )
+
     default_html_code = String(default="")
     default_css_code = String(default="")
     default_js_code = String(default="")
@@ -16,7 +29,8 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
     html_code = String(default=None, scope=Scope.user_state)
     css_code = String(default=None, scope=Scope.user_state)
     js_code = String(default=None, scope=Scope.user_state)
-
+    
+    editable_fields = ("display_name", "instruction")
 
     def resource_string(self, path):
         data = pkg_resources.resource_string(__name__, path)
@@ -29,28 +43,20 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
     
     def student_view(self, context=None):
         frag = Fragment()
-        html = self.render_template("static/html/hcjlivedit.html", {"instruction": self.instruction, "context": context})
+        html = self.render_template("static/html/hcjlivedit.html", {"self": self, "context": context})
         frag.add_content(html)
         frag.add_css(self.resource_string("static/css/hcjlivedit.css"))
-        # frag.add_javascript_url("https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js")
+        frag.add_javascript_url(
+            self.runtime.local_resource_url(self, "public/js/vendor/ace-builds/src-min-noconflict/ace.js")
+        )
         frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
-        frag.initialize_js('HtmlCssJsLiveEditorXBlock')
+        frag.initialize_js("HtmlCssJsLiveEditorXBlock")
         return frag
     
     def author_view(self, context=None):
         context["author"] = True
         return self.student_view(context)
-
-    def studio_view(self, context=None):
-        frag = Fragment()
-        html = self.render_template("static/html/hcjlivedit_edit.html", {"instruction": self.instruction})
-        frag.add_content(html)
-        frag.add_css(self.resource_string("static/css/hcjlivedit_edit.css"))
-        # frag.add_javascript_url("https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js")
-        frag.add_javascript(self.resource_string("static/js/src/hcjlivedit_edit.js"))
-        frag.initialize_js('HtmlCssJsLiveEditorEditXBlock')
-        return frag
-
+    
     @XBlock.json_handler
     def save_instruction(self, data, suffix=""):
 
@@ -59,19 +65,7 @@ class HtmlCssJsLiveEditorXBlock(XBlock):
         if data["instruction"] is None:
             success = False
 
-        # if data["htmlCode"] is None:
-        #     success = False
-        
-        # if data["cssCode"] is None:
-        #     success = False
-
-        # if data["jsCode"] is None:
-        #     success = False
-        
         self.instruction = data["instruction"]
-        # self.default_html_code = data["htmlCode"]
-        # self.default_css_code = data["cssCode"]
-        # self.default_js_code = data["jsCode"]
 
         return { "success": success }
 
