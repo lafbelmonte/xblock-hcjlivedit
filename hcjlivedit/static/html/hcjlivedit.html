@@ -2,6 +2,27 @@
     <div class="instruction">
         {{ self.instruction | safe }}
     </div>
+
+    {% if context.is_staff and not context.is_cms %}
+    <div class="staff_top_buttons"> <button id="submissions">Submissions</button> </div>
+    <div id="submissions_div">
+        <table id="submissions_table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    {% endif %}
+
     <div class="editor">
         <div class="input">
             <div class="code">
@@ -22,8 +43,23 @@
             <iframe id="page"></iframe>
         </div>
     </div>
-    <div class="buttons">
-        <button class="reset">Reset</button>
-        <button class="save">Save</button>
+
+
+    {% if context.is_staff and not context.is_cms %}
+    <div class="staff_grading">
+
     </div>
+    {% endif %}
+
+    {% if not context.is_staff %}
+    <div class="student_buttons">
+        <button id="reset">Reset</button>
+        <button id="save">Save</button>
+        <button id="submit">Submit</button>
+        <button id="view_grade">View Score</button>
+    </div>
+
+    <div class="view_grade_div"></div>
+    {% endif %}
+
 </div>

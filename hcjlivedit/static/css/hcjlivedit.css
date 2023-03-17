@@ -1,13 +1,12 @@
 .instruction {
     margin: 10px;
-    height: 20%;
 }
 
 .editor {
     margin: 20px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 60%;
+
 }
 
 .label {
@@ -39,8 +38,21 @@
     width: 100%;
 }
 
-.buttons {
+.student_buttons {
     margin: 10px;
-    height: 20%;
     text-align: right;
+}
+
+.staff_buttons {
+    margin: 10px;
+    text-align: right;
+}
+
+#submissions_div {
+    margin: 10px;
+    display: none;
+}
+
+#submissions_table {
+    width: 100%;
 }
