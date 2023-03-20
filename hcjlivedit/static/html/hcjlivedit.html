@@ -1,65 +1,79 @@
-<div class="hcjlivedit_block">
-    <div class="instruction">
-        {{ self.instruction | safe }}
+<div id="hcjle-block">
+    <div class="hcjle-section">
+        {{ instruction | safe }}
     </div>
 
-    {% if context.is_staff and not context.is_cms %}
-    <div class="staff_top_buttons"> <button id="submissions">Submissions</button> </div>
-    <div id="submissions_div">
-        <table id="submissions_table">
+    {% if is_staff and not is_cms %}
+    <div class="hcjle-section" style="text-align: right;">
+        <button id="submissions-button">Submissions</button>
+    </div>
+
+    <div class="hcjle-section" style="display: none;" id="submissions-area">
+        <button class="hcjle-table-button" id="open-submit-score-modal-button">Submit Score</button>
+        <button class="hcjle-table-button" id="remove-score-button">Remove Score</button>
+        <div id="submit-score-modal" class="hcjle-modal">
+            <div class="hcjle-modal-content">
+                <span class="hcjle-modal-close" id="close-submit-score-modal-button">&times;</span>
+                <p id="submit-score-modal-title"></p>
+                <form id="submit-score-form">
+                    <label for="score">Score:</label>
+                    <input type="number" id="score" style="margin: 5px; width: 10%;" required>
+                    <label for="comment">Comment:</label>
+                    <textarea id="comment" style="margin: 5px; width: 100%; height: 200px;" required></textarea>
+                    <br>
+                    <input type="submit" style="margin: 5px;" value="Submit">
+                </form>
+            </div>
+        </div>
+        <table id="submissions-table" class="hover hcjle-table">
             <thead>
                 <tr>
                     <th></th>
                     <th>Username</th>
                     <th>Name</th>
+                    <th>Score</th>
                     <th></th>
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
-            <tfoot>
-            </tfoot>
         </table>
     </div>
     {% endif %}
 
-    <div class="editor">
-        <div class="input">
-            <div class="code">
-                <span class="label">HTML</span>
-                <div id="html"></div>
+    <div class="hcjle-section hcjle-grid-2">
+        <div class="hcjle-section">
+            <div class="hcjle-section">
+                <span class="hcjle-label ">HTML</span>
+                <div class="hcjle-editor" id="html-editor"></div>
             </div>
-            <div class="code">
-                <span class="label">CSS</span>
-                <div id="css"></div>
+            <div class="hcjle-section">
+                <span class="hcjle-label ">CSS</span>
+                <div class="hcjle-editor" id="css-editor"></div>
             </div>
-            <div class="code">
-                <span class="label">JS</span>
-                <div id="js"></div>
+            <div class="hcjle-section">
+                <span class="hcjle-label ">JS</span>
+                <div class="hcjle-editor" id="js-editor"></div>
             </div>
         </div>
-        <div class="output">
-            <span class="label">Result</span>
-            <iframe id="page"></iframe>
+        <div class="hcjle-section">
+            <span class="hcjle-label ">Result</span>
+            <iframe class="hcjle-code-output" id="code-output"></iframe>
         </div>
     </div>
 
-
-    {% if context.is_staff and not context.is_cms %}
-    <div class="staff_grading">
-
+    {% if not is_staff and not score %}
+    <div class="hcjle-section" style="text-align: right;">
+        <button id="reset-button">Reset</button>
+        <button id="save-button">Save</button>
+        <button id="submit-button">Submit</button>
     </div>
     {% endif %}
 
-    {% if not context.is_staff %}
-    <div class="student_buttons">
-        <button id="reset">Reset</button>
-        <button id="save">Save</button>
-        <button id="submit">Submit</button>
-        <button id="view_grade">View Score</button>
+    {% if not is_staff and score %}
+    <div class="hcjle-section">
+        <p>Score: <b>{{ score }}</b> / {{ weight }}</p>
+        <p>Comment: {{ comment }}</p>
     </div>
-
-    <div class="view_grade_div"></div>
     {% endif %}
-
 </div>

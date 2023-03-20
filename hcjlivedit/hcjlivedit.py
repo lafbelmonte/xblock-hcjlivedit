@@ -1,5 +1,4 @@
 import pkg_resources
-import logging
 import json
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
@@ -11,13 +10,8 @@ from common.djangoapps.student.models import user_by_anonymous_id
 from webob import Response
 from submissions import api as submissions_api
 from submissions.models import StudentItem as SubmissionsStudent
-from enum import Enum
-
-log = logging.getLogger(__name__)
 
 class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
-
-    Status = Enum("Status", "IN_PROGRESS SUBMITTED GRADED")
 
     has_author_view = True
     has_score = True
@@ -55,8 +49,8 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
     css_code = String(default=None, scope=Scope.user_state)
     js_code = String(default=None, scope=Scope.user_state)
 
-    status = String(default=Status.IN_PROGRESS.name, scope=Scope.user_state)
-
+    has_submitted = Boolean(default=False, scope=Scope.user_state)
+    comment = String(default=None, scope=Scope.user_state)
 
     def get_submission(self, student_id=None):
         submissions = submissions_api.get_submissions(
@@ -86,13 +80,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
                 "module_type": self.category,
             },
         )
-        if created:
-            log.info(
-                "Created student module %s [course: %s] [student: %s]",
-                student_module.module_state_key,
-                student_module.course_id,
-                student_module.student.username,
-            )
+
         return student_module
 
     def get_real_user(self):
@@ -112,6 +100,9 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
 
     def block_id(self):
         return str(self.scope_ids.usage_id)
+    
+    def score(self):
+        return self.get_score()
 
     def block_course_id(self):
         return str(self.course_id)
@@ -140,9 +131,15 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
     def student_view(self, context=None):
 
         context["is_staff"] = self.is_staff()
-
+        context["instruction"] = self.instruction
+        context["score"] = self.score()
+        context["comment"] = self.comment
+        context["weight"] = self.weight
+        context["block_id"] = self.block_id()
+        
+        
         frag = Fragment()
-        html = self.render_template("static/html/hcjlivedit.html", {"self": self, "context": context})
+        html = self.render_template("static/html/hcjlivedit.html", context)
         frag.add_content(html)
         frag.add_css(self.resource_string("static/css/hcjlivedit.css"))
         frag.add_javascript_url(
@@ -155,7 +152,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
             self.runtime.local_resource_url(self, "public/js/vendor/datatables-builds/datatables/datatables.min.js")
         )
         frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
-        frag.initialize_js("HtmlCssJsLiveEditorXBlock")
+        frag.initialize_js("HtmlCssJsLiveEditorXBlock", context)
         return frag
     
     def author_view(self, context=None):
@@ -164,8 +161,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
     
     @XBlock.handler
     def reset_code(self, request, suffix=""):
-
-        if self.status is not self.Status.IN_PROGRESS.name:
+        if self.has_submitted:
             return Response("You have already submitted, please wait for your score.", status_code=400)
 
         self.html_code = self.default_html_code
@@ -176,7 +172,6 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
 
     @XBlock.handler
     def load_code(self, request, suffix=""):
-
         if self.html_code is None:
             self.html_code = self.default_html_code
         
@@ -191,7 +186,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
     @XBlock.handler
     def save_code(self, request, suffix=""):
 
-        if self.status is not self.Status.IN_PROGRESS.name:
+        if self.has_submitted:
             return Response("You have already submitted, please wait for your score.", status_code=400)
 
         html_code = request.POST["htmlCode"]
@@ -212,7 +207,73 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
         self.js_code = js_code
 
         return Response(json_body={ "message": "Code saved successfully." })
+
+    @XBlock.handler
+    def submit_score(self, request, suffix=""):
+
+        if not self.is_staff():
+            return Response("You can't access this resource.", status_code=403)
+        
+        score = request.POST["score"]
+        comment = request.POST["comment"]
+        module_id = request.POST["moduleId"]
+        submission_id = request.POST["submissionId"]
+
+        if score is None:
+            return Response("Score is required.", status_code=400)
+        
+        if comment is None:
+            return Response("Comment is required.", status_code=400)
     
+        if module_id is None:
+            return Response("Module ID is required.", status_code=400)
+
+        if submission_id is None:
+            return Response("Submission ID is required.", status_code=400)
+        
+        try:
+            score = int(score)
+        except ValueError:
+            return Response("Score is invalid.", status_code=400)
+        
+        module = self.get_student_module(module_id)
+        state = json.loads(module.state)
+
+        submissions_api.set_score(submission_id, score, self.weight)
+
+        state["comment"] = comment
+
+        module.state = json.dumps(state)
+        module.save()
+
+        return Response(json_body={ "message": "Score submitted successfully." })
+    
+    @XBlock.handler
+    def remove_score(self, request, suffix=""):
+        if not self.is_staff():
+            return Response("You can't access this resource.", status_code=403)
+
+        student_id = request.POST["studentId"]
+        module_id = request.POST["moduleId"]
+
+        if student_id is None:
+            return Response("Student ID is required.", status_code=400)
+        
+        if module_id is None:
+            return Response("Module ID is required.", status_code=400)
+
+        submissions_api.reset_score(student_id, self.block_course_id(), self.block_id())
+
+        module = self.get_student_module(module_id)
+        state = json.loads(module.state)
+
+        state["comment"] = None
+
+        module.state = json.dumps(state)
+        module.save()
+
+        return Response(json_body={ "message": "Score removed successfully." })
+
     @XBlock.handler
     def load_submissions(self, request, suffix=""):
 
@@ -240,15 +301,17 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
                     "fullname": student_module.student.profile.name,
                     "html_code": submission["answer"]["html_code"],
                     "css_code": submission["answer"]["css_code"],
-                    "js_code": submission["answer"]["css_code"],
+                    "js_code": submission["answer"]["js_code"],
+                    "score": score,
+                    "comment": state.get("comment")
                 }
 
-        return Response(json_body={ "submissions": list(get_student_data()) })
+        return Response(json_body={ "submissions": list(get_student_data()), "weight": self.weight })
 
     @XBlock.handler
     def submit_code(self, request, suffix=""):
 
-        if self.status is not self.Status.IN_PROGRESS.name:
+        if self.has_submitted:
             return Response("You have already submitted, please wait for your score.", status_code=400)
 
         html_code = request.POST["htmlCode"]
@@ -281,7 +344,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
 
         submissions_api.create_submission(student_item_dict, answer)
 
-        self.status = self.Status.SUBMITTED.name
+        self.has_submitted = True
         
         return Response(json_body={ "message": "Code submitted successfully." })
 
