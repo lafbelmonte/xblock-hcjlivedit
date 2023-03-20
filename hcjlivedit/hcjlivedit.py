@@ -135,8 +135,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
         context["score"] = self.score()
         context["comment"] = self.comment
         context["weight"] = self.weight
-        context["block_id"] = self.block_id()
-        
+        context["block_id"] = self.location.html_id()
         
         frag = Fragment()
         html = self.render_template("static/html/hcjlivedit.html", context)
@@ -152,7 +151,7 @@ class HtmlCssJsLiveEditorXBlock(StudioEditableXBlockMixin, XBlock):
             self.runtime.local_resource_url(self, "public/js/vendor/datatables-builds/datatables/datatables.min.js")
         )
         frag.add_javascript(self.resource_string("static/js/src/hcjlivedit.js"))
-        frag.initialize_js("HtmlCssJsLiveEditorXBlock", context)
+        frag.initialize_js("HtmlCssJsLiveEditorXBlock", context["block_id"])
         return frag
     
     def author_view(self, context=None):

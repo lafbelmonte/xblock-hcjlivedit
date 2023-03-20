@@ -1,31 +1,32 @@
-<div id="hcjle-block">
+<div id="hcjle-block-{{ block_id }}">
     <div class="hcjle-section">
         {{ instruction | safe }}
     </div>
 
     {% if is_staff and not is_cms %}
     <div class="hcjle-section" style="text-align: right;">
-        <button id="submissions-button">Submissions</button>
+        <button id="submissions-button-{{ block_id }}">Submissions</button>
     </div>
 
-    <div class="hcjle-section" style="display: none;" id="submissions-area">
-        <button class="hcjle-table-button" id="open-submit-score-modal-button">Submit Score</button>
-        <button class="hcjle-table-button" id="remove-score-button">Remove Score</button>
-        <div id="submit-score-modal" class="hcjle-modal">
+    <div class="hcjle-section" style="display: none;" id="submissions-area-{{ block_id }}">
+        <button class="hcjle-table-button" id="open-submit-score-modal-button-{{ block_id }}">Submit Score</button>
+        <button class="hcjle-table-button" id="remove-score-button-{{ block_id }}">Remove Score</button>
+        <div id="submit-score-modal-{{ block_id }}" class="hcjle-modal">
             <div class="hcjle-modal-content">
-                <span class="hcjle-modal-close" id="close-submit-score-modal-button">&times;</span>
-                <p id="submit-score-modal-title"></p>
-                <form id="submit-score-form">
+                <span class="hcjle-modal-close" id="close-submit-score-modal-button-{{ block_id }}">&times;</span>
+                <p id="submit-score-modal-title-{{ block_id }}"></p>
+                <form id="submit-score-form-{{ block_id }}">
                     <label for="score">Score:</label>
-                    <input type="number" id="score" style="margin: 5px; width: 10%;" required>
+                    <input type="number" id="score-{{ block_id }}" style="margin: 5px; width: 10%;" required>
                     <label for="comment">Comment:</label>
-                    <textarea id="comment" style="margin: 5px; width: 100%; height: 200px;" required></textarea>
+                    <textarea id="comment-{{ block_id }}" style="margin: 5px; width: 100%; height: 200px;"
+                        required></textarea>
                     <br>
                     <input type="submit" style="margin: 5px;" value="Submit">
                 </form>
             </div>
         </div>
-        <table id="submissions-table" class="hover hcjle-table">
+        <table id="submissions-table-{{ block_id }}" class="hover hcjle-table">
             <thead>
                 <tr>
                     <th></th>
@@ -45,28 +46,28 @@
         <div class="hcjle-section">
             <div class="hcjle-section">
                 <span class="hcjle-label ">HTML</span>
-                <div class="hcjle-editor" id="html-editor"></div>
+                <div class="hcjle-editor" id="html-editor-{{ block_id }}"></div>
             </div>
             <div class="hcjle-section">
                 <span class="hcjle-label ">CSS</span>
-                <div class="hcjle-editor" id="css-editor"></div>
+                <div class="hcjle-editor" id="css-editor-{{ block_id }}"></div>
             </div>
             <div class="hcjle-section">
                 <span class="hcjle-label ">JS</span>
-                <div class="hcjle-editor" id="js-editor"></div>
+                <div class="hcjle-editor" id="js-editor-{{ block_id }}"></div>
             </div>
         </div>
         <div class="hcjle-section">
             <span class="hcjle-label ">Result</span>
-            <iframe class="hcjle-code-output" id="code-output"></iframe>
+            <iframe class="hcjle-code-output" id="code-output-{{ block_id }}"></iframe>
         </div>
     </div>
 
     {% if not is_staff and not score %}
     <div class="hcjle-section" style="text-align: right;">
-        <button id="reset-button">Reset</button>
-        <button id="save-button">Save</button>
-        <button id="submit-button">Submit</button>
+        <button id="reset-button-{{ block_id }}">Reset</button>
+        <button id="save-button-{{ block_id }}">Save</button>
+        <button id="submit-button-{{ block_id }}">Submit</button>
     </div>
     {% endif %}
 

@@ -1,7 +1,7 @@
-function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
-  let htmlEditor = ace.edit("html-editor");
-  let cssEditor = ace.edit("css-editor");
-  let jsEditor = ace.edit("js-editor");
+function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
+  let htmlEditor = ace.edit(`html-editor-${block_id}`);
+  let cssEditor = ace.edit(`css-editor-${block_id}`);
+  let jsEditor = ace.edit(`js-editor-${block_id}`);
 
   let datatable;
 
@@ -11,7 +11,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
     let htmlCode = htmlEditor.getValue();
     let cssCode = "<style>" + cssEditor.getValue() + "</style>";
     let jsCode = jsEditor.getValue();
-    let codeOutput = document.querySelector("#code-output");
+    let codeOutput = document.querySelector(`#code-output-${block_id}`);
 
     codeOutput.contentDocument.body.innerHTML = htmlCode + cssCode;
     codeOutput.contentWindow.eval(jsCode);
@@ -96,7 +96,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
   }
 
   function loadSubmissions() {
-    if ($("#submissions-area", element).css("display") === "none") {
+    if ($(`#submissions-area-${block_id}`, element).css("display") === "none") {
       const loadSubmissionsHandlerUrl = runtime.handlerUrl(
         element,
         "load_submissions"
@@ -111,24 +111,24 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
               return { weight: data.weight, ...item };
             })
           );
-          $("#submissions-area", element).css("display", "block");
+          $(`#submissions-area-${block_id}`, element).css("display", "block");
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.log(jqXHR.responseText);
-          $("#submissions-area", element).text(
+          $(`#submissions-area-${block_id}`, element).text(
             "Something went wrong, please check the console."
           );
         },
       });
     } else {
-      $("#submissions-table tbody tr").removeClass("row-selected");
+      $(`#submissions-table-${block_id} tbody tr`).removeClass("row-selected");
       update({
         htmlCode: "",
         cssCode: "",
         jsCode: "",
       });
       selectedRow = null;
-      $("#submissions-area", element).css("display", "none");
+      $(`#submissions-area-${block_id}`, element).css("display", "none");
     }
   }
 
@@ -145,8 +145,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
 
     const submitScoreHandlerUrl = runtime.handlerUrl(element, "submit_score");
 
-    let score = $("#score", element).val();
-    let comment = $("#comment", element).val();
+    let score = $(`#score-${block_id}`, element).val();
+    let comment = $(`#comment-${block_id}`, element).val();
 
     let candidateData = datatable
       .data()
@@ -185,24 +185,24 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
 
   function openSubmitScoreModal() {
     if (selectedRow) {
-      $("#score", element).attr({
+      $(`#score-${block_id}`, element).attr({
         min: 0,
         max: selectedRow.weight,
       });
-      $("#score", element).val(selectedRow.score);
-      $("#comment", element).val(selectedRow.comment);
-      $("#submit-score-modal-title", element).text(
+      $(`#score-${block_id}`, element).val(selectedRow.score);
+      $(`#comment-${block_id}`, element).val(selectedRow.comment);
+      $(`#submit-score-modal-title-${block_id}`, element).text(
         `Scoring ${selectedRow.fullname}, maximum score is ${selectedRow.weight}.`
       );
-      $("#submit-score-modal", element).css("display", "block");
+      $(`#submit-score-modal-${block_id}`, element).css("display", "block");
     }
   }
 
   function closeSubmitScoreModal() {
-    $("#submit-score-modal-title", element).text("");
-    $("#score", element).val(null);
-    $("#comment", element).val(null);
-    $("#submit-score-modal", element).css("display", "none");
+    $(`#submit-score-modal-title-${block_id}`, element).text("");
+    $(`#score-${block_id}`, element).val(null);
+    $(`#comment-${block_id}`, element).val(null);
+    $(`#submit-score-modal-${block_id}`, element).css("display", "none");
   }
 
   function removeScore() {
@@ -256,19 +256,23 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
 
     update(data);
 
-    $("#html-editor", element).keyup(run);
-    $("#css-editor", element).keyup(run);
-    $("#js-editor", element).keyup(run);
-    $("#save-button", element).click(save);
-    $("#reset-button", element).click(reset);
-    $("#submit-button", element).click(submit);
-    $("#submissions-button", element).click(loadSubmissions);
-    $("#remove-score-button", element).click(removeScore);
-    $("#open-submit-score-modal-button", element).click(openSubmitScoreModal);
-    $("#close-submit-score-modal-button", element).click(closeSubmitScoreModal);
-    $("#submit-score-form", element).submit(submitScore);
+    $(`#html-editor-${block_id}`, element).keyup(run);
+    $(`#css-editor-${block_id}`, element).keyup(run);
+    $(`#js-editor-${block_id}`, element).keyup(run);
+    $(`#save-button-${block_id}`, element).click(save);
+    $(`#reset-button-${block_id}`, element).click(reset);
+    $(`#submit-button-${block_id}`, element).click(submit);
+    $(`#submissions-button-${block_id}`, element).click(loadSubmissions);
+    $(`#remove-score-button-${block_id}`, element).click(removeScore);
+    $(`#open-submit-score-modal-button-${block_id}`, element).click(
+      openSubmitScoreModal
+    );
+    $(`#close-submit-score-modal-button-${block_id}`, element).click(
+      closeSubmitScoreModal
+    );
+    $(`#submit-score-form-${block_id}`, element).submit(submitScore);
 
-    datatable = $("#submissions-table").DataTable({
+    datatable = $(`#submissions-table-${block_id}`).DataTable({
       info: false,
       autoWidth: false,
       select: true,
@@ -330,8 +334,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
       ],
     });
 
-    $("#submissions-table tbody").on("click", "tr", function () {
-      $("#submissions-table tbody tr").removeClass("row-selected");
+    $(`#submissions-table-${block_id} tbody`).on("click", "tr", function () {
+      $(`#submissions-table-${block_id} tbody tr`).removeClass("row-selected");
       const data = datatable.row(this).data();
 
       selectedRow = data;
@@ -353,7 +357,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, { block_id }) {
     success: init,
     error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
-      $("#hcjle-block", element).text(
+      $(`#hcjle-block-${block_id}`, element).text(
         "Something went wrong, please check the console."
       );
     },
