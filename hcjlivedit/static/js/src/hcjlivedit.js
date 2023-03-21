@@ -7,6 +7,14 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
 
   let selectedRow = null;
 
+  function showLoading() {
+    $(`#loading-${block_id}`, element).css("display", "block");
+  }
+
+  function hideLoading() {
+    $(`#loading-${block_id}`, element).css("display", "none");
+  }
+
   function run() {
     let htmlCode = htmlEditor.getValue();
     let cssCode = "<style>" + cssEditor.getValue() + "</style>";
@@ -24,6 +32,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
     let cssCode = cssEditor.getValue();
     let jsCode = jsEditor.getValue();
 
+    showLoading();
+
     $.ajax({
       type: "POST",
       url: saveCodeHandlerUrl,
@@ -33,9 +43,11 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
         jsCode,
       },
       success: function (data) {
+        hideLoading();
         alert(data.message);
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        hideLoading();
         console.log(jqXHR.responseText);
         alert(jqXHR.responseText);
       },
@@ -45,13 +57,17 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
   function reset() {
     const resetCodeHandlerUrl = runtime.handlerUrl(element, "reset_code");
 
+    showLoading();
+
     $.ajax({
       type: "POST",
       url: resetCodeHandlerUrl,
       success: function (data) {
+        hideLoading();
         update(data);
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        hideLoading();
         console.log(jqXHR.responseText);
         alert(jqXHR.responseText);
       },
@@ -70,6 +86,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
       let cssCode = cssEditor.getValue();
       let jsCode = jsEditor.getValue();
 
+      showLoading();
+
       $.ajax({
         type: "POST",
         url: submitCodeHandlerUrl,
@@ -79,9 +97,11 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
           jsCode,
         },
         success: function (data) {
+          hideLoading();
           alert(data.message);
         },
         error: function (jqXHR, textStatus, errorThrown) {
+          hideLoading();
           console.log(jqXHR.responseText);
           alert(jqXHR.responseText);
         },
@@ -102,10 +122,12 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
         "load_submissions"
       );
 
+      showLoading();
       $.ajax({
         type: "GET",
         url: loadSubmissionsHandlerUrl,
         success: function (data) {
+          hideLoading();
           updateDataTable(
             data.submissions.map(function (item) {
               return { weight: data.weight, ...item };
@@ -114,6 +136,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
           $(`#submissions-area-${block_id}`, element).css("display", "block");
         },
         error: function (jqXHR, textStatus, errorThrown) {
+          hideLoading();
           console.log(jqXHR.responseText);
           $(`#submissions-area-${block_id}`, element).text(
             "Something went wrong, please check the console."
@@ -163,6 +186,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
         return item;
       });
 
+    showLoading();
+
     $.ajax({
       type: "POST",
       url: submitScoreHandlerUrl,
@@ -173,10 +198,12 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
         submissionId: selectedRow.submission_id,
       },
       success: function (data) {
+        hideLoading();
         updateDataTable(candidateData);
         alert(data.message);
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        hideLoading();
         console.log(jqXHR.responseText);
         alert(jqXHR.responseText);
       },
@@ -229,6 +256,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
       ) {
         const removeScoreHandler = runtime.handlerUrl(element, "remove_score");
 
+        showLoading();
         $.ajax({
           type: "POST",
           url: removeScoreHandler,
@@ -237,10 +265,12 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
             studentId: selectedRow.student_id,
           },
           success: function (data) {
+            hideLoading();
             updateDataTable(candidateData);
             alert(data.message);
           },
           error: function (jqXHR, textStatus, errorThrown) {
+            hideLoading();
             console.log(jqXHR.responseText);
             alert(jqXHR.responseText);
           },
@@ -250,6 +280,8 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
   }
 
   function init(data) {
+    hideLoading();
+
     htmlEditor.session.setMode("ace/mode/html");
     cssEditor.session.setMode("ace/mode/css");
     jsEditor.session.setMode("ace/mode/javascript");
@@ -351,10 +383,14 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
 
   const loadCodeHandlerUrl = runtime.handlerUrl(element, "load_code");
 
+  showLoading();
   $.ajax({
     type: "GET",
     url: loadCodeHandlerUrl,
-    success: init,
+    success: function (data) {
+      hideLoading();
+      init(data);
+    },
     error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
       $(`#hcjle-block-${block_id}`, element).text(
