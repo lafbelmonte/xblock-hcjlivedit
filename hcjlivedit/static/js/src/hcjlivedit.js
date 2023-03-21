@@ -280,8 +280,6 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
   }
 
   function init(data) {
-    hideLoading();
-
     htmlEditor.session.setMode("ace/mode/html");
     cssEditor.session.setMode("ace/mode/css");
     jsEditor.session.setMode("ace/mode/javascript");
@@ -392,6 +390,7 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
       init(data);
     },
     error: function (jqXHR, textStatus, errorThrown) {
+      hideLoading();
       console.log(jqXHR.responseText);
       $(`#hcjle-block-${block_id}`, element).text(
         "Something went wrong, please check the console."
