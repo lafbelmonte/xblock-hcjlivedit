@@ -341,9 +341,9 @@ function HtmlCssJsLiveEditorXBlock(runtime, element, block_id) {
       selectedRow = data;
 
       update({
-        htmlCode: data.html_code,
-        cssCode: data.css_code,
-        jsCode: data.js_code,
+        htmlCode: data?.html_code || "",
+        cssCode: data?.css_code || "",
+        jsCode: data?.js_code || "",
       });
       $(this).addClass("row-selected");
     });

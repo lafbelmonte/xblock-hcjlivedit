@@ -3,7 +3,7 @@
         {{ instruction | safe }}
     </div>
 
-    {% if is_staff and not is_cms %}
+    {% if is_staff %}
     <div class="hcjle-section" style="text-align: right;">
         <button id="submissions-button-{{ block_id }}">Submissions</button>
     </div>
@@ -63,18 +63,22 @@
         </div>
     </div>
 
-    {% if not is_staff and not score %}
+    {% if not is_staff %}
+    {% if not score %}
+
     <div class="hcjle-section" style="text-align: right;">
         <button id="reset-button-{{ block_id }}">Reset</button>
         <button id="save-button-{{ block_id }}">Save</button>
         <button id="submit-button-{{ block_id }}">Submit</button>
     </div>
-    {% endif %}
 
-    {% if not is_staff and score %}
+    {% else %}
+
     <div class="hcjle-section">
         <p>Score: <b>{{ score }}</b> / {{ weight }}</p>
         <p>Comment: {{ comment }}</p>
     </div>
+
+    {% endif %}
     {% endif %}
 </div>
