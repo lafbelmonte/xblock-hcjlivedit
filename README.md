@@ -63,11 +63,14 @@ A _HTML CSS JS Live Editor_ should now be available in _Advanced Component_.
 * Instruction field is provided for displaying instructions to the students.
 * Maximum Score field is provided for setting up the maximum score a student could get for this component.
 
-## V1 Improvements
+## Tests
+```
+tox
+```
+## Improvements
 
-* Add tests.
-* Support other programming languages.
-* Stability ???
+* Add more tests.
+* Language support.
 
 
 
