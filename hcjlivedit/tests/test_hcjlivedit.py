@@ -14,6 +14,14 @@ from xblock.field_data import DictFieldData
 pytestmark = pytest.mark.django_db
 
 
+class DummyResource:
+    def __init__(self, path):
+        self.path = path
+
+    def __eq__(self, other):
+        return isinstance(other, DummyResource) and self.path == other.path
+
+
 class FakeWorkbenchRuntime(WorkbenchRuntime):
     anonymous_student_id = "MOCK"
     user_is_staff = True
@@ -25,6 +33,9 @@ class FakeWorkbenchRuntime(WorkbenchRuntime):
 
     def get_real_user(self, username):
         return User.objects.get(username=username)
+
+    def local_resource_url(*args, **kwargs):
+        pass
 
 
 class HtmlCssJsLiveEditorMockedTests(unittest.TestCase):
@@ -82,7 +93,6 @@ class HtmlCssJsLiveEditorMockedTests(unittest.TestCase):
 
     def test_defaults(self):
         block = self.make_xblock()
-        print(block)
         assert block.display_name == "HTML CSS JS Live Editor"
         assert block.css_code == None
         assert block.js_code == None
@@ -94,3 +104,50 @@ class HtmlCssJsLiveEditorMockedTests(unittest.TestCase):
         assert block.comment == None
         assert block.has_submitted == False
         assert block.instruction == "<p>Hello World!</p>"
+
+    def test_weight(self):
+        block = self.make_xblock(weight=25.4)
+        assert block.weight == 25.4
+
+    def test_display_name(self):
+        block = self.make_xblock(display_name="Problem1")
+        assert block.display_name == "Problem1"
+
+    def test_instruction(self):
+        block = self.make_xblock(instruction="<p>Instruction</p>")
+        assert block.instruction == "<p>Instruction</p>"
+
+    @mock.patch("hcjlivedit.hcjlivedit.HtmlCssJsLiveEditorXBlock.render_template")
+    @mock.patch("hcjlivedit.hcjlivedit.Fragment")
+    def test_student_view(self,  render_template, fragment):
+        block = self.make_xblock()
+
+        with mock.patch(
+            "hcjlivedit.hcjlivedit.HtmlCssJsLiveEditorXBlock.score", return_value=None
+        ):
+            fragment = block.student_view(context={})
+            assert block.render_template.called is True
+            template_arg = block.render_template.call_args[0][0]
+            assert template_arg == "static/html/hcjlivedit.html"
+            context = block.render_template.call_args[0][1]
+            assert context["is_staff"] is True
+            assert context["block_id"] == "i4x-foo-bar-category-name"
+            fragment.add_css.assert_called_once
+            fragment.add_javascript.assert_called_once
+            fragment.initialize_js.assert_called_once_with(
+                "HtmlCssJsLiveEditorXBlock", "i4x-foo-bar-category-name"
+            )
+
+    @mock.patch("hcjlivedit.hcjlivedit.HtmlCssJsLiveEditorXBlock.render_template")
+    @mock.patch("hcjlivedit.hcjlivedit.Fragment")
+    def test_author_view(self,  render_template, fragment):
+        block = self.make_xblock()
+
+        block.author_view(context={})
+        assert block.render_template.called is True
+        template_arg = block.render_template.call_args[0][0]
+        assert template_arg == "static/html/hcjlivedit_author.html"
+        context = block.render_template.call_args[0][1]
+        assert context["block_id"] == "i4x-foo-bar-category-name"
+    
+    
